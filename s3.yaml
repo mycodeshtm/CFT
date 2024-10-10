@@ -1,0 +1,42 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: Create Conformance Pack Operational Best Practices for CMMC 2.0 Level 2 
+
+
+Parameters:
+    BucketNames:
+        Type: String
+        Description:  ARN of CMK used for encypting the Source bucket
+        Default: "mycdwlztestbucket34"
+        
+Resources:
+  MyBucket:
+    Type: 'AWS::S3::Bucket'
+    Properties:
+      BucketName: !Ref BucketNames
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: false
+        RestrictPublicBuckets: true
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
+      AccessControl: BucketOwnerFullControl
+      LifecycleConfiguration:
+        Rules:
+          - Id: GlacierRule
+            Prefix: glacier
+            Status: Enabled
+            ExpirationInDays: 365
+            Transitions:
+              - TransitionInDays: 1
+                StorageClass: GLACIER
+      Tags:
+        -
+          Key: Description
+          Value: Object Storage
+      VersioningConfiguration:
+        Status: Enabled
+
+    
